@@ -1,20 +1,17 @@
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
-import path from "node:path";
+import { resolve } from "node:path";
+import { eolTransfrom } from "../utils/stream-transform-eol.js";
+import { pipeline } from "node:stream/promises";
+
+const file = resolve(import.meta.dirname, "./files/fileToCalculateHashFor.txt");
+const readStream = createReadStream(file);
+
+const hashTransform = createHash("sha256").setEncoding("hex");
 
 const calculateHash = async () => {
-    const algorithm = "sha256";
-    const encoding = "hex";
-    const file = "files/fileToCalculateHashFor.txt";
-    const filePath = path.resolve(import.meta.dirname, file);
-
-    const hash = createHash(algorithm).setEncoding(encoding);
-
-    createReadStream(filePath)
-        .pipe(hash)
-        .on("data", (data) => {
-            process.stdout.write(data + "\n");
-        });
+    console.log(`Getting hash for ${file}`);
+    pipeline(readStream, hashTransform, eolTransfrom, process.stdout);
 };
 
 await calculateHash();
