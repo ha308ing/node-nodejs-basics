@@ -1,16 +1,18 @@
+import { cpus } from "node:os";
 import { Worker } from "node:worker_threads";
-import path from "node:path";
+import { resolve } from "node:path";
+
+const startingNumber = 10;
+const cpuCount = cpus().length;
+const workerPath = resolve(import.meta.dirname, "worker.js");
 
 const performCalculations = async () => {
-    const workerPath = path.resolve(import.meta.dirname, "worker.js");
-    const resultsCount = 3;
-    const numberStart = 10;
-
-    let resultsCounter = 0;
     const results = [];
-    for (let i = 0; i < resultsCount; i++) {
+    let workerCounter = 0;
+
+    for (let i = 0; i < cpuCount; i++) {
         const worker = new Worker(workerPath, {
-            workerData: { n: i + numberStart },
+            workerData: { n: i + startingNumber },
         });
 
         worker.on("message", (result) => {
@@ -22,8 +24,7 @@ const performCalculations = async () => {
         });
 
         worker.on("exit", () => {
-            resultsCounter++;
-            if (resultsCounter === resultsCount) {
+            if (++workerCounter === cpuCount) {
                 console.log(results);
             }
         });
