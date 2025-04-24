@@ -1,23 +1,14 @@
-import path from "node:path";
-import { createReadStream } from "node:fs";
-import { Transform } from "node:stream";
+import { createReadStream, createWriteStream } from "node:fs";
+import { resolve } from "node:path";
+import { pipeline } from "node:stream/promises";
+import { eolTransfrom } from "../utils/stream-transform-eol.js";
+
+const file = resolve(import.meta.dirname, "./files/fileToRead.txt");
+
+const fileStream = createReadStream(file);
 
 const read = async () => {
-    const file = "files/fileToRead.txt";
-    const filePath = path.resolve(import.meta.dirname, file);
-
-    const stream = createReadStream(filePath).setEncoding("utf-8");
-
-    stream
-        .pipe(
-            new Transform({
-                transform(chunk, _, callback) {
-                    chunk += "\n";
-                    callback(null, chunk);
-                },
-            })
-        )
-        .pipe(process.stdout);
+    pipeline(fileStream, eolTransfrom, process.stdout);
 };
 
 await read();

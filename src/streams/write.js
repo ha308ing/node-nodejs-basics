@@ -1,14 +1,14 @@
 import { createWriteStream } from "node:fs";
-import path from "node:path";
+import { resolve } from "node:path";
+import { pipeline } from "node:stream/promises";
+
+const file = resolve(import.meta.dirname, "./files/fileToWrite.txt");
+
+const writeStream = createWriteStream(file, { encoding: "utf-8" });
 
 const write = async () => {
-    const file = "files/fileToWrite.txt";
-    const filePath = path.resolve(import.meta.dirname, file);
-    const streamWrite = createWriteStream(filePath);
-
-    process.stdin.on("data", (data) => {
-        streamWrite.write(data);
-    });
+    console.log(`Hello from write!\nEnter something to type in ${file}`);
+    pipeline(process.stdin, writeStream);
 };
 
 await write();
