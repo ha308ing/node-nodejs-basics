@@ -1,16 +1,12 @@
-import path from "node:path";
-import fs from "node:fs";
-import { checkPath, throwError, doOperation } from "./helpers/index.js";
+import { unlink } from "node:fs/promises";
+import { resolve } from "node:path";
+import { doOperation } from "./utils/do-operation.js";
+
+const file = resolve(import.meta.dirname, "./files/fileToRemove.txt");
 
 const remove = async () => {
-    const file = "files/fileToRemove.txt";
-    const filePath = path.resolve(import.meta.dirname, file);
-
-    const isFileExist = await checkPath(filePath);
-
-    if (!isFileExist) throwError();
-
-    doOperation(fs.promises.rm, filePath);
+    console.log(`Removing ${file}`);
+    await doOperation(unlink, file);
 };
 
 await remove();

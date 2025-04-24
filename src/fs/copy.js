@@ -1,17 +1,27 @@
-import path from "node:path";
-import fs from "node:fs";
-import { checkPaths, throwError, doOperation } from "./helpers/index.js";
+import { cp } from "node:fs/promises";
+import { resolve } from "node:path";
+import { throwError } from "./utils/throw-error.js";
+import { checkPath } from "./utils/check-path.js";
+import { doOperation } from "./utils/do-operation.js";
+
+const source = resolve(import.meta.dirname, "./files/");
+const destination = resolve(import.meta.dirname, "./files_copy/");
+
+const copyOptions = {
+    errorOnExist: true,
+    force: false,
+    recursive: true,
+    preserveTimestamps: true,
+};
 
 const copy = async () => {
-    const source = path.resolve(import.meta.dirname, "files");
-    const target = path.resolve(import.meta.dirname, "files_copy");
+    const isDestinationExists = await checkPath(destination);
 
-    const [isSourceExist, isTargetExist] = await checkPaths(source, target);
-    const isError = !isSourceExist || isTargetExist;
+    if (isDestinationExists) {
+        throwError();
+    }
 
-    if (isError) throwError();
-
-    doOperation(fs.promises.cp, source, target, { recursive: true });
+    doOperation(cp, source, destination, copyOptions);
 };
 
 await copy();

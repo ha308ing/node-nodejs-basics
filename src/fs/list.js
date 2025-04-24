@@ -1,16 +1,16 @@
-import path from "node:path";
-import fs from "node:fs";
-import { checkPath, throwError, doOperation } from "./helpers/index.js";
+import { readdir } from "node:fs/promises";
+import { resolve } from "node:path";
+import { doOperation } from "./utils/do-operation.js";
+
+const directory = resolve(import.meta.dirname, "./files");
+
+const readdirOptions = {
+    recursive: true,
+    withFileTypes: false,
+};
 
 const list = async () => {
-    const dir = "files";
-    const dirPath = path.resolve(import.meta.dirname, dir);
-
-    const isDirExist = await checkPath(dirPath);
-
-    if (!isDirExist) throwError();
-
-    const files = await doOperation(fs.promises.readdir, dirPath);
+    const files = await doOperation(readdir, directory, readdirOptions);
     console.log(files);
 };
 

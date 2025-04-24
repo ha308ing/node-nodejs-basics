@@ -1,21 +1,16 @@
-import path from "node:path";
-import fs from "node:fs";
-import { checkPath, throwError, doOperation } from "./helpers/index.js";
+import { readFile } from "node:fs/promises";
+import { doOperation } from "./utils/do-operation.js";
+import { resolve } from "node:path";
+
+const file = resolve(import.meta.dirname, "./files/fileToRead.txt");
+
+const readFileOptions = {
+    encoding: "utf-8",
+};
 
 const read = async () => {
-    const file = "files/fileToRead.txt";
-    const filePath = path.resolve(import.meta.dirname, file);
-
-    const isFileExist = await checkPath(filePath);
-
-    if (!isFileExist) throwError();
-
-    const fileContent = await doOperation(
-        fs.promises.readFile,
-        filePath,
-        "utf-8"
-    );
-    console.log(fileContent);
+    const content = await doOperation(readFile, file, readFileOptions);
+    console.log(content);
 };
 
 await read();

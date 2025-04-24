@@ -1,17 +1,18 @@
-import path from "node:path";
-import fs from "node:fs";
-import { checkPath, throwError, doOperation } from "./helpers/index.js";
+import { writeFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import { doOperation } from "./utils/do-operation.js";
+
+const file = resolve(import.meta.dirname, "./files/fresh.txt");
+
+const fileContent = "I am fresh and young";
+
+const writeOptions = {
+    flag: "ax+",
+};
 
 const create = async () => {
-    const file = "files/fresh.txt";
-    const fileContent = "I am fresh and young";
-
-    const filePath = path.resolve(import.meta.dirname, file);
-    const isFileExist = await checkPath(filePath);
-
-    if (isFileExist) throwError();
-
-    doOperation(fs.promises.writeFile, filePath, fileContent, "utf-8");
+    await doOperation(writeFile, file, fileContent, writeOptions);
+    console.log(file);
 };
 
 await create();

@@ -1,20 +1,22 @@
-import path from "node:path";
-import fs from "node:fs";
-import { checkPaths, throwError, doOperation } from "./helpers/index.js";
+import { rename as fsRename } from "node:fs/promises";
+import { resolve, dirname } from "node:path";
+import { checkPath } from "./utils/check-path.js";
+import { doOperation } from "./utils/do-operation.js";
+import { throwError } from "./utils/throw-error.js";
+
+const file = resolve(import.meta.dirname, "./files/wrongFilename.txt");
+const newFileName = "properFilename.md";
+
+const directory = dirname(file);
+const newFile = resolve(directory, newFileName);
 
 const rename = async () => {
-    const fileName = "files/wrongFilename.txt";
-    const targetName = "files/properFilename.md";
+    console.log(`Renaming ${file}\nto ${newFile}`);
+    const isNewFileExists = await checkPath(newFile);
 
-    const filePath = path.resolve(import.meta.dirname, fileName);
-    const targetPath = path.resolve(import.meta.dirname, targetName);
+    if (isNewFileExists) throwError();
 
-    const [isFileExist, isTargetExist] = await checkPaths(filePath, targetPath);
-    const isError = !isFileExist || isTargetExist;
-
-    if (isError) throwError();
-
-    doOperation(fs.promises.rename, filePath, targetPath);
+    doOperation(fsRename, file, newFile);
 };
 
 await rename();
